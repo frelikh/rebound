@@ -2,11 +2,11 @@ infile = "/home/renata/rebound/examples/foo.txt"
 import numpy as np
 a,e = np.loadtxt(infile, usecols=(1,2),unpack=True,skiprows=1)
 from matplotlib import pyplot as plt
-plt.scatter(a,e)
+plt.scatter(a,e,s=5)
 plt.xscale('log')
 
 #semimajor_axis = np.linspace(0.01,2.,20)
-semimajor_axis = np.logspace(-2.0,0.3,30)
+semimajor_axis = np.logspace(-2.0,1.0,100)
 
 G = 6.67e-8
 Mpl = 2.0e30
@@ -21,5 +21,8 @@ def v_kep(a):
 print(v_esc)
 
 es = [v_esc/v_kep(item) for item in semimajor_axis]
-plt.scatter(semimajor_axis,es,color='r',s=2)
+plt.plot(semimajor_axis,es,color='r')
+plt.xlabel("Semimajor axis, AU")
+plt.ylabel("Eccentricity")
+plt.title("IC: Random a (0-5 AU) & true anomalies (0-2pi), masses 0.1-2 MJ, 100 runs, n=10")
 plt.savefig("foo.png")

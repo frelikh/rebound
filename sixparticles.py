@@ -5,14 +5,11 @@ from rebound import hash as h
 # change these values to specify simulation parameters
 n_runs = 100
 t_max = 1.0e3
-m_planet = 0.001
+#m_planet = 0.001
 m_star = 1.
 n_planets = 10
+list_of_planet_ms = np.linspace(0.5,10.,num=10)
 
-# open file to save data
-f = open('foo.txt','w')
-print(f)
-f.write("index a    e    i    energy_error    n_final\n")
 
 # definition of hill radius
 def rhill(m,mstar,a):
@@ -55,6 +52,12 @@ def setupSimulation(n,m,mstar):
     a = planet_distances(n,m,mstar)
 
     # adding particles and identifying them with hashes
+    # radius: 50 Jupiter radii (in AU)
+    
+    # random masses: next two lines. don't do this.
+    #random_planet_masses = 0.0001+np.random.rand(n)*0.0019
+    #[sim.add(m=random_planet_masses[i],a=a[i],l=ls[i],hash=i+1,r=(50.0*4.66e-4)) for i in range(n)]
+
     [sim.add(m=m,a=a[i],l=ls[i],hash=i+1,r=(50.0*4.66e-4)) for i in range(n)]
 
     # move to center of mass frame
@@ -66,11 +69,12 @@ def energy_offset(sim,E0):
     dE = abs((sim.calculate_energy()-E0)/E0)
     return dE
 
+def run_simulations(number_of_runs, t_max, number_of_particles, m_particles, m_stellar,sim_label):
+    # open file to save data
+    f = open('foo%d.txt' %sim_label,'w')
+    print(f)
+    f.write("index   a    e    i    energy_error    n_final   close_encounters  particle_mass\n")
 
-from rebound import hash as h
-
-# 
-def run_simulations(number_of_runs, t_max, number_of_particles, m_particles, m_stellar):
     for sim_count in range(number_of_runs):
     
         sim = setupSimulation(number_of_particles,m_particles,m_stellar)
@@ -95,20 +99,7 @@ def run_simulations(number_of_runs, t_max, number_of_particles, m_particles, m_s
         E0 = sim.calculate_energy()
         #print("Energy: {}".format(E0))
 
-
-        x1,y1=np.zeros(Noutputs),np.zeros(Noutputs)
-        x2,y2=np.zeros(Noutputs),np.zeros(Noutputs)
-        x3,y3=np.zeros(Noutputs),np.zeros(Noutputs)
-        x4,y4=np.zeros(Noutputs),np.zeros(Noutputs)
-        x5,y5=np.zeros(Noutputs),np.zeros(Noutputs)
-
-        a1 = np.zeros(Noutputs)
-        a2 = np.zeros(Noutputs)
-        a3 = np.zeros(Noutputs)
-        a4 = np.zeros(Noutputs)
-        a5 = np.zeros(Noutputs)
-
-        semimajor_axes = [a1, a2, a3, a4, a5]
+        semimajor_axes = np.zeros((number_of_particles,Noutputs))
 
         # note: this is how they do it in the examples, later maybe re-write it with purely hashes
         # i.e. loop through the particles like: 
@@ -134,13 +125,15 @@ def run_simulations(number_of_runs, t_max, number_of_particles, m_particles, m_s
                 sim.remove(index=index)
                 sim.move_to_com()
 
-            # loop through 5 particles
+            # loop through the particles
             # if they're still left, then the 'a' value is recorded
             # otherwise, a 0 is recorded
             # record the semimajor axes of the particles
-            for k in range(5):
+            # start with k=1, because we want planets and not the Sun
+            # for the semimajor_axes, the particles start at 0
+            for k in range(number_of_particles):
                 try:
-                    semimajor_axes[k][i] = sim.particles[h(k)].a
+                    semimajor_axes[k][i] = sim.particles[h(k+1)].a
                 except rebound.ParticleNotFound as error:
                     semimajor_axes[k][i] = 0  
 
@@ -157,13 +150,13 @@ def run_simulations(number_of_runs, t_max, number_of_particles, m_particles, m_s
         ax.set_yscale('log')
         plt.ylim(0,10)
 
-        plt.savefig("/home/renata/rebound/examples/a/distances%d.png" %sim_count)
+        plt.savefig("/home/renata/rebound/examples/a/a%d/distances%d.png" %(sim_label,sim_count))
         plt.close(fig)
         en_error = energy_offset(sim,E0)
         close_encounters = sim.ri_hermes._steps_miniactive
 
         # after each simulation ends, write final orbital elements to file
-        [f.write("%d %2.3f %2.3f %2.3f %f %d %1.1f\n"% (sim_count,item.a,item.e,item.inc,en_error,sim.N,close_encounters)) for item in sim.particles[1:]]
+        [f.write("%d %2.3f %2.3f %2.3f %f %d %1.1f %2.4f\n"% (sim_count,item.a,item.e,item.inc,en_error,sim.N,close_encounters,item.m)) for item in sim.particles[1:]]
         #[f.write("%d %2.3f %2.3f %2.3f %f %d\n"% (h(item.hash).value,item.a,item.e,item.inc,en_error,sim.N)) for item in sim.particles[1:]]
         print("{},{}\n".format(sim.particles[0].x,sim.particles[0].y))
         #print("Particles left: {}".format(sim.N))
@@ -181,12 +174,11 @@ def run_simulations(number_of_runs, t_max, number_of_particles, m_particles, m_s
         #sim.status()
 
 
-
+    f.close()
     return 0
 
-run_simulations(n_runs, t_max, n_planets, m_planet, m_star)
+[run_simulations(n_runs, t_max, n_planets, m_planet, m_star,sim_label) for sim_label,m_planet in enumerate(list_of_planet_ms)]
 
-f.close()
 
 #stability = [np.std(item[80:99]) for item in semimajor_axes]
 

@@ -8,7 +8,7 @@ t_max = 1.0e3
 #m_planet = 0.001
 m_star = 1.
 n_planets = 10
-list_of_planet_ms = np.linspace(0.5,10.,num=10)
+list_of_planet_ms = 0.001*np.linspace(0.5,10.,num=10)
 
 
 # definition of hill radius

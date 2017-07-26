@@ -31,7 +31,10 @@ def setupSimulation(n,m,mstar):
 
 	a = planet_distances(n,m,mstar)
 	ls = 2.0*np.pi*np.random.rand(n)
-	[sim.add(m=m,a=a[i],l=ls[i],hash=i+1,r=(50.0*4.66e-4)) for i in range(n)]
+
+	ms = [0.003,0.003,0.003,0.003,0.003,0.03,0.03,0.03,0.03,0.03]
+	[sim.add(m=ms[i],a=a[i],l=ls[i],hash=i+1,r=(50.0*4.66e-4)) for i in range(n)]
+
 	sim.move_to_com()
 	
 
@@ -59,12 +62,12 @@ def stability(semimajor_axis,intervals):
 	mask_sum = 0
 	for particle in range(number_of_particles):
 		errors = np.asarray(a_interval_spread[particle])
-		print("Errors are:")
-		print(errors)
+		#print("Errors are:")
+		#print(errors)
 		mask = errors>stability_condition
 		mask_sum += np.sum(mask)
-		print("Particle %d" %particle)
-		print("Greater than %2.2f if unstable: %d" %(stability_condition,mask_sum))
+		#print("Particle %d" %particle)
+		#print("Greater than %2.2f if unstable: %d" %(stability_condition,mask_sum))
 	stability_value = (mask_sum==0)
 	# true if stable, false if unstable
 	return stability_value
@@ -99,6 +102,7 @@ def run_sim(sim,times,run_number,sim_label):
 		# integrate to this point in time, iterate
 		# through the timesteps on the times array
 		time = times[niter]
+		print(run_number,niter)
 
 		try:
 			sim.integrate(time)
@@ -180,5 +184,5 @@ def run_simulations(number_of_runs, t_max, number_of_particles, m_particles, m_s
 	f.close()
 	return 0
 
-run_simulations(10, max_time, number_of_particles , 0.001, 1.0, 0,repeats)
+run_simulations(100, max_time, number_of_particles , 0.001, 1.0, 0,repeats)
 	

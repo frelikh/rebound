@@ -1,17 +1,22 @@
 import rebound
 import numpy as np
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 bin_dir = '/home/renata/rebound/examples/stability_tests'
 indir = '/home/renata/rebound/examples'
-stability_condition = 0.5
+stability_condition = 1.0
 dividing_chunks = 50
 repeats = 10
+max_time = 200
+
+number_of_particles = 10
+Noutputs=1000
+max_niter = 10000
 
 from rebound import hash as h
 
 def planet_distances(n,m,mstar):
 
-    a = 0.3*np.random.rand(n)
+    a = 5.0*np.random.rand(n)
     print(a)
     return a
     
@@ -80,8 +85,6 @@ def stability(semimajor_axis,intervals):
 
 
 
-number_of_particles = 3
-Noutputs=1000
 
 semimajor_axes = np.zeros((number_of_particles,Noutputs*repeats))
 #eccentricites = np.zeros((number_of_particles,Noutputs))
@@ -102,7 +105,7 @@ def elapsed_time(start_time):
 sim = setupSimulation(number_of_particles,0.001,1.0)
 #sim.initSimulationArchive("bin_dir/archive.bin", interval=1e3)
     
-max_time = 200
+
 sim.exit_max_distance=30.0
 
 
@@ -114,7 +117,7 @@ def run_sim(sim,times):
 	niter = 0
 
 
-	while(True):
+	while(niter<max_niter):
 		print("Run number: %d" %niter)
 		# integrate to this point in time, iterate
 		# through the timesteps on the times array
@@ -156,10 +159,19 @@ def run_sim(sim,times):
 				print("System is stable, exiting.")
 				break
 		niter += 1
-	[plt.plot(all_times, item) for item in semimajor_axes]
-	plt.savefig(indir+"/image.png")
-	plt.clf()
-		
+	t = range(Noutputs*repeats)
+	#[plt.plot(t, item) for item in semimajor_axes]
+	#plt.savefig(indir+"/image.png")
+	#plt.clf()
+
+	#automatically closes the file
+	with open(indir+"/semimajor_axis_file.txt",'w') as semimajor_axis_file:
+		for row_number in range(Noutputs*repeats):
+			for p_number in range(number_of_particles):
+				semimajor_axis_file.write("%f %f %d\n" %(t[row_number],semimajor_axes[p_number][row_number],p_number))
+
+	semimajor_axis_file.closed
+
 	return 0
 
 

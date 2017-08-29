@@ -3,7 +3,9 @@ import rebound
 import numpy as np
 #from matplotlib import pyplot as plt
 #bin_dir = '/home/renata/rebound/examples/stability_tests'
-indir = '/home/renata/rebound/examples'
+# this for graymalkin:
+#indir = '/home/renata/rebound/examples'
+indir = '/Users/renata/sftp_graymalkin'
 stability_condition = 1.0
 dividing_chunks = 50
 repeats = 10
@@ -32,7 +34,7 @@ def setupSimulation(n,m,mstar):
 	a = planet_distances(n,m,mstar)
 	ls = 2.0*np.pi*np.random.rand(n)
 
-	ms = [0.003,0.003,0.003,0.003,0.003,0.03,0.03,0.03,0.03,0.03]
+	ms = [0.0003,0.0003,0.0003,0.0003,0.0003,0.003,0.003,0.003,0.003,0.003]
 	[sim.add(m=ms[i],a=a[i],l=ls[i],hash=i+1,r=(50.0*4.66e-4)) for i in range(n)]
 
 	sim.move_to_com()
@@ -95,6 +97,13 @@ initial_times =np.linspace(0,max_time*2.*np.pi,Noutputs)
 all_times = np.linspace(0,max_time*2.*np.pi*repeats,Noutputs*repeats)
 start_time = t.time()
 
+# removes all particles from the simulation to clear
+# values
+
+def remove_all_particles(given_sim):
+	while(len(given_sim.particles)):
+		given_sim.remove(index=0)
+
 def run_sim(sim,times,run_number,sim_label):
 	niter = 0
 	while(niter<max_niter):
@@ -136,6 +145,7 @@ def run_sim(sim,times,run_number,sim_label):
 			#print(new_a_values)
 			if(stability(new_a_values,dividing_chunks)):
 				print("System is stable, exiting.")
+				remove_all_particles(sim)
 				break
 		niter += 1
 	t = range(Noutputs*repeats)

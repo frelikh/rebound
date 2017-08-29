@@ -107,9 +107,9 @@ def run_sim(sim,times,run_number,sim_label):
 	#fs = np.zeros((number_of_particles,Noutputs))
 	#Ms = np.zeros((number_of_particles,Noutputs))
 	#particle_masses = np.zeros((number_of_particles,Noutputs))
-	
+
 	niter = 0
-	while(niter<(max_niter+1)):
+	while(niter<max_niter):
 		#print("Run number: %d" %niter)
 		# integrate to this point in time, iterate
 		# through the timesteps on the times array
@@ -143,20 +143,23 @@ def run_sim(sim,times,run_number,sim_label):
 		# check for stability, but only at intervals of 1000
 		# record the semimajor axes at a particlular time
 		
-		if(niter>999 and niter%1000==0):
-			new_a_values = [item[(niter-1000):niter] for item in semimajor_axes]
+		if((niter+1)>999 and (niter+1)%1000==0):
+			new_a_values = [item[(niter-999):(niter+1)] for item in semimajor_axes]
 			#print(new_a_values)
 
 			if(stability(new_a_values,dividing_chunks)):
 				print("System is stable, exiting.")
 				remove_all_particles(sim)
 				break
-
-			if(niter==10000):
+				
+			if((niter+1)==max_niter):
 				print("%d_%d never became stable" %(run_number,sim_label))
 				remove_all_particles(sim)
+
 		
 		niter += 1
+
+
 	t = range(Noutputs*repeats)
 
 	#automatically closes the file

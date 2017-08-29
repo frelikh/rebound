@@ -78,15 +78,7 @@ def stability(semimajor_axis,intervals):
 
 
 
-semimajor_axes = np.zeros((number_of_particles,Noutputs*repeats))
-#eccentricites = np.zeros((number_of_particles,Noutputs))
-#inclinations = np.zeros((number_of_particles,Noutputs))
-#Omegas = np.zeros((number_of_particles,Noutputs))
-#pomegas = np.zeros((number_of_particles,Noutputs))
-#omegas = np.zeros((number_of_particles,Noutputs))
-#fs = np.zeros((number_of_particles,Noutputs))
-#Ms = np.zeros((number_of_particles,Noutputs))
-#particle_masses = np.zeros((number_of_particles,Noutputs))
+
 		
 import time as t
 def elapsed_time(start_time):
@@ -106,6 +98,16 @@ def remove_all_particles(given_sim):
 		given_sim.remove(index=0)
 
 def run_sim(sim,times,run_number,sim_label):
+	semimajor_axes = np.zeros((number_of_particles,Noutputs*repeats))
+	#eccentricites = np.zeros((number_of_particles,Noutputs))
+	#inclinations = np.zeros((number_of_particles,Noutputs))
+	#Omegas = np.zeros((number_of_particles,Noutputs))
+	#pomegas = np.zeros((number_of_particles,Noutputs))
+	#omegas = np.zeros((number_of_particles,Noutputs))
+	#fs = np.zeros((number_of_particles,Noutputs))
+	#Ms = np.zeros((number_of_particles,Noutputs))
+	#particle_masses = np.zeros((number_of_particles,Noutputs))
+	
 	niter = 0
 	while(niter<(max_niter+1)):
 		#print("Run number: %d" %niter)
@@ -149,7 +151,7 @@ def run_sim(sim,times,run_number,sim_label):
 				print("System is stable, exiting.")
 				remove_all_particles(sim)
 				break
-				
+
 			if(niter==10000):
 				print("%d_%d never became stable" %(run_number,sim_label))
 				remove_all_particles(sim)

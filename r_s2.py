@@ -5,6 +5,7 @@ import numpy as np
 #bin_dir = '/home/renata/rebound/examples/stability_tests'
 # this for graymalkin:
 #indir = '/home/renata/rebound/examples'
+# for my computer:
 indir = '/Users/renata/sftp_graymalkin'
 stability_condition = 1.0
 dividing_chunks = 50
@@ -106,7 +107,7 @@ def remove_all_particles(given_sim):
 
 def run_sim(sim,times,run_number,sim_label):
 	niter = 0
-	while(niter<max_niter):
+	while(niter<(max_niter+1)):
 		#print("Run number: %d" %niter)
 		# integrate to this point in time, iterate
 		# through the timesteps on the times array
@@ -143,10 +144,16 @@ def run_sim(sim,times,run_number,sim_label):
 		if(niter>999 and niter%1000==0):
 			new_a_values = [item[(niter-1000):niter] for item in semimajor_axes]
 			#print(new_a_values)
+
 			if(stability(new_a_values,dividing_chunks)):
 				print("System is stable, exiting.")
 				remove_all_particles(sim)
 				break
+				
+			if(niter==10000):
+				print("%d_%d never became stable" %(run_number,sim_label))
+				remove_all_particles(sim)
+		
 		niter += 1
 	t = range(Noutputs*repeats)
 
